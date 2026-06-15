@@ -63,7 +63,7 @@ export async function POST(req: Request) {
     );
   } catch (error) {
     return NextResponse.json(
-      { error: error instanceof Error ? error.message : "Error al crear usuario" },
+      { error: "Error al crear usuario" },
       { status: 500 }
     );
   }
