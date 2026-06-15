@@ -1,4 +1,6 @@
-export { auth as middleware } from "@/lib/auth";
+import { auth } from "@/lib/auth";
+
+export default auth;
 
 export const config = {
   matcher: ["/dashboard/:path*"],
