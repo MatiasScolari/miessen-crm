@@ -8,7 +8,7 @@ export default function LandingPage() {
           <div className="flex items-center gap-2">
             <span className="text-2xl">🍳</span>
             <span className="text-xl font-semibold text-text">
-              Mi<span className="text-primary">Essen</span> CRM
+              Alumia
             </span>
           </div>
           <div className="flex items-center gap-4">

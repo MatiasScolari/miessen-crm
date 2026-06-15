@@ -49,7 +49,7 @@ function RegisterForm() {
           </h1>
           <p className="mt-1 text-sm text-text-secondary">
             {token
-              ? "Te invitaron a unirte a MiEssen CRM"
+               ? "Te invitaron a unirte a Alumia"
               : "Empezá a organizar tus clientes"}
           </p>
         </div>

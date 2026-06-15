@@ -21,7 +21,7 @@ export default async function DashboardLayout({
         <div className="flex items-center gap-2 border-b border-border px-6 py-5">
           <span className="text-xl">🍳</span>
           <span className="text-base font-semibold text-text">
-            Mi<span className="text-primary">Essen</span>
+            Alumia
           </span>
         </div>
 

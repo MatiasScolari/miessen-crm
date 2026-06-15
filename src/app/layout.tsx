@@ -8,8 +8,8 @@ const geist = Geist({
 });
 
 export const metadata: Metadata = {
-  title: "MiEssen CRM - Tu red de clientes",
-  description: "Gestioná tus clientes de Essen de forma simple y organizada",
+  title: "Alumia - Tu red de clientes",
+  description: "Gestioná tus clientes de forma simple y organizada",
 };
 
 export default function RootLayout({
