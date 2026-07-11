@@ -1,5 +1,8 @@
 import Link from "next/link";
 
+const WHATSAPP_NUMBER = "541123456789";
+const WHATSAPP_MSG = encodeURIComponent("Hola! Quiero info sobre Alumia");
+
 export default function LandingPage() {
   return (
     <div className="min-h-screen bg-gradient-to-b from-white via-background to-background">
@@ -11,20 +14,12 @@ export default function LandingPage() {
             </div>
             <span className="text-lg font-semibold text-text">Alumia</span>
           </div>
-          <div className="flex items-center gap-3">
-            <Link
-              href="/login"
-              className="rounded-lg px-4 py-2 text-sm font-medium text-text-secondary transition-colors hover:text-text"
-            >
-              Iniciar sesión
-            </Link>
-            <Link
-              href="/register"
-              className="rounded-lg bg-primary px-5 py-2 text-sm font-medium text-white shadow-sm transition-all hover:bg-primary-dark hover:shadow-md"
-            >
-              Crear cuenta
-            </Link>
-          </div>
+          <Link
+            href="/login"
+            className="rounded-lg bg-primary px-5 py-2 text-sm font-medium text-white shadow-sm transition-all hover:bg-primary-dark hover:shadow-md"
+          >
+            Iniciar sesión
+          </Link>
         </div>
       </header>
 
@@ -42,23 +37,26 @@ export default function LandingPage() {
             </span>
           </h1>
           <p className="mx-auto mt-4 max-w-xl text-lg text-text-secondary">
-            Un CRM simple y hermoso para gestionar tus contactos, hacer
+            Una herramienta simple y poderosa para gestionar tus contactos, hacer
             seguimiento y nunca perder una venta.
           </p>
           <div className="mt-8 flex items-center justify-center gap-4">
-            <Link
-              href="/register"
-              className="inline-flex items-center gap-2 rounded-xl bg-primary px-8 py-3.5 text-base font-semibold text-white shadow-lg shadow-primary/30 transition-all hover:bg-primary-dark hover:shadow-xl hover:shadow-primary/40"
+            <a
+              href={`https://wa.me/${WHATSAPP_NUMBER}?text=${WHATSAPP_MSG}`}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="inline-flex items-center gap-2.5 rounded-xl bg-gradient-to-r from-success to-emerald-600 px-8 py-3.5 text-base font-semibold text-white shadow-lg shadow-success/30 transition-all hover:brightness-105 hover:shadow-xl hover:shadow-success/40"
             >
-              Quiero probarlo gratis
-              <span>→</span>
-            </Link>
-            <Link
-              href="/login"
-              className="rounded-xl border-2 border-border bg-white px-8 py-3.5 text-base font-semibold text-text transition-colors hover:border-primary/30 hover:text-primary"
+              💬 Quiero información
+            </a>
+            <a
+              href={`https://wa.me/${WHATSAPP_NUMBER}?text=${WHATSAPP_MSG}`}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="rounded-xl border-2 border-border bg-white px-8 py-3.5 text-base font-semibold text-text transition-all hover:border-primary/30 hover:text-primary"
             >
-              Ya tengo cuenta
-            </Link>
+              ✉️ Contactame
+            </a>
           </div>
         </section>
 
@@ -69,11 +67,11 @@ export default function LandingPage() {
                 👥
               </div>
               <h3 className="text-lg font-semibold text-text">
-                Tus clientes organizados
+                Tus contactos organizados
               </h3>
               <p className="mt-2 text-sm leading-relaxed text-text-secondary">
-                Guardá nombre, teléfono, email y medio de pago. Todo en un solo
-                lugar, siempre a mano.
+                Guardá toda la información importante de tus clientes en un solo
+                lugar, siempre a mano y bien ordenada.
               </p>
             </div>
 
@@ -120,9 +118,9 @@ export default function LandingPage() {
                   ✓
                 </span>
                 <div>
-                  <p className="font-medium text-text">Base de clientes</p>
+                  <p className="font-medium text-text">Base de contactos</p>
                   <p className="mt-1 text-sm text-text-secondary">
-                    Todos tus contactos con notas y seguimiento
+                    Todos tus clientes con notas para no perder detalle
                   </p>
                 </div>
               </div>
@@ -133,7 +131,7 @@ export default function LandingPage() {
                 <div>
                   <p className="font-medium text-text">WhatsApp integrado</p>
                   <p className="mt-1 text-sm text-text-secondary">
-                    Contactá clientes con un clic, mensajes listos
+                    Contactá a tus clientes con un clic
                   </p>
                 </div>
               </div>
@@ -142,9 +140,9 @@ export default function LandingPage() {
                   ✓
                 </span>
                 <div>
-                  <p className="font-medium text-text">Multi-usuario</p>
+                  <p className="font-medium text-text">Soporte personalizado</p>
                   <p className="mt-1 text-sm text-text-secondary">
-                    Invitá a tu equipo, cada una con sus clientes
+                    Te ayudo a configurar todo, sin complicaciones
                   </p>
                 </div>
               </div>
@@ -153,9 +151,9 @@ export default function LandingPage() {
                   ✓
                 </span>
                 <div>
-                  <p className="font-medium text-text">100% gratis</p>
+                  <p className="font-medium text-text">Fácil de usar</p>
                   <p className="mt-1 text-sm text-text-secondary">
-                    Sin costos ocultos, sin tarjetas de crédito
+                    Sin conocimientos técnicos, intuitive y rápido
                   </p>
                 </div>
               </div>
@@ -164,22 +162,36 @@ export default function LandingPage() {
         </section>
 
         <section className="mx-auto max-w-6xl px-6 py-20 text-center">
-          <h2 className="text-2xl font-bold text-text">¿Lista para empezar?</h2>
+          <h2 className="text-2xl font-bold text-text">
+            ¿Querés saber más?
+          </h2>
           <p className="mt-2 text-text-secondary">
-            Creá tu cuenta gratis y empezá a organizar tus clientes hoy mismo.
+            Escribime por WhatsApp y te cuento cómo funciona, los planes
+            disponibles y resolvemos todas tus dudas.
           </p>
-          <Link
-            href="/register"
-            className="mt-6 inline-flex items-center gap-2 rounded-xl bg-primary px-8 py-3.5 text-base font-semibold text-white shadow-lg shadow-primary/30 transition-all hover:bg-primary-dark hover:shadow-xl"
+          <a
+            href={`https://wa.me/${WHATSAPP_NUMBER}?text=${WHATSAPP_MSG}`}
+            target="_blank"
+            rel="noopener noreferrer"
+            className="mt-6 inline-flex items-center gap-2.5 rounded-xl bg-gradient-to-r from-success to-emerald-600 px-8 py-3.5 text-base font-semibold text-white shadow-lg shadow-success/30 transition-all hover:brightness-105 hover:shadow-xl"
           >
-            Crear mi cuenta gratis
-            <span>→</span>
-          </Link>
+            💬 Consultame por WhatsApp
+          </a>
         </section>
       </main>
 
       <footer className="border-t border-border/60 py-8 text-center text-sm text-text-muted">
-        <p>Alumia © {new Date().getFullYear()} — Hecho para emprendedoras</p>
+        <p>
+          Alumia © {new Date().getFullYear()} —{" "}
+          <a
+            href={`https://wa.me/${WHATSAPP_NUMBER}`}
+            target="_blank"
+            rel="noopener noreferrer"
+            className="text-primary hover:text-primary-dark"
+          >
+            Contacto
+          </a>
+        </p>
       </footer>
     </div>
   );
