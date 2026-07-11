@@ -3,6 +3,8 @@
 import { useEffect, useState, use } from "react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
+import { useToast } from "@/components/Toast";
+import { ConfirmModal } from "@/components/ConfirmModal";
 
 type Client = {
   id: string;
@@ -21,17 +23,16 @@ export default function ClientDetailPage({
 }) {
   const { id } = use(params);
   const router = useRouter();
+  const { toast } = useToast();
   const [client, setClient] = useState<Client | null>(null);
   const [loading, setLoading] = useState(true);
   const [editing, setEditing] = useState(false);
   const [newNote, setNewNote] = useState("");
   const [savingNote, setSavingNote] = useState(false);
+  const [showDelete, setShowDelete] = useState(false);
 
   const [form, setForm] = useState({
-    name: "",
-    phone: "",
-    email: "",
-    paymentMethod: "",
+    name: "", phone: "", email: "", paymentMethod: "",
   });
 
   async function loadClient() {
@@ -40,18 +41,14 @@ export default function ClientDetailPage({
       const data = await res.json();
       setClient(data);
       setForm({
-        name: data.name,
-        phone: data.phone,
-        email: data.email,
-        paymentMethod: data.paymentMethod,
+        name: data.name, phone: data.phone,
+        email: data.email, paymentMethod: data.paymentMethod,
       });
     }
     setLoading(false);
   }
 
-  useEffect(() => {
-    loadClient();
-  }, [id]);
+  useEffect(() => { loadClient(); }, [id]);
 
   async function handleUpdate(e: React.FormEvent) {
     e.preventDefault();
@@ -61,24 +58,24 @@ export default function ClientDetailPage({
       body: JSON.stringify(form),
     });
     if (res.ok) {
+      toast("success", "Cliente actualizado");
       setEditing(false);
       await loadClient();
     }
   }
 
   async function handleDelete() {
-    if (!confirm("¿Estás segura de eliminar este cliente?")) return;
-
     const res = await fetch(`/api/clients/${id}`, { method: "DELETE" });
     if (res.ok) {
+      toast("success", "Cliente eliminado");
       router.push("/dashboard/clients");
     }
+    setShowDelete(false);
   }
 
   async function handleAddNote(e: React.FormEvent) {
     e.preventDefault();
     if (!newNote.trim()) return;
-
     setSavingNote(true);
     const res = await fetch(`/api/clients/${id}/notes`, {
       method: "POST",
@@ -94,43 +91,45 @@ export default function ClientDetailPage({
 
   if (loading) {
     return (
-      <div className="py-12 text-center text-sm text-text-secondary">
-        Cargando...
+      <div className="space-y-6 py-8">
+        <div className="h-4 w-32 animate-pulse rounded bg-border" />
+        <div className="h-24 animate-pulse rounded-2xl bg-border" />
+        <div className="h-48 animate-pulse rounded-2xl bg-border" />
       </div>
     );
   }
 
   if (!client) {
     return (
-      <div className="py-12 text-center">
+      <div className="animate-fade-in py-12 text-center">
         <p className="text-text-secondary">Cliente no encontrado</p>
         <Link
           href="/dashboard/clients"
-          className="mt-2 inline-block text-sm text-primary hover:text-primary-dark"
+          className="mt-2 inline-block text-sm font-medium text-primary hover:text-primary-dark"
         >
-          Volver a clientes
+          ← Volver a clientes
         </Link>
       </div>
     );
   }
 
-  const whatsappLink = `https://wa.me/54${client.phone.replace(/\D/g, "")}?text=Hola%20${encodeURIComponent(client.name.split(" ")[0])}%2C%20te%20escribo%20de%20Essen%20para%20contarte%20las%20novedades%20de%20esta%20semana%20💕`;
+  const whatsappLink = `https://wa.me/54${client.phone.replace(/\D/g, "")}?text=Hola%20${encodeURIComponent(client.name.split(" ")[0])}%2C%20%C2%BFc%C3%B3mo%20est%C3%A1s%3F%20Te%20escribo%20para%20contarte%20las%20novedades%20✨`;
 
   return (
-    <div className="max-w-3xl">
+    <div className="mx-auto max-w-3xl animate-fade-in">
       <div className="mb-6">
         <Link
           href="/dashboard/clients"
-          className="text-sm text-text-secondary hover:text-text"
+          className="text-sm text-text-secondary transition-colors hover:text-text"
         >
           ← Volver a clientes
         </Link>
       </div>
 
-      <div className="mb-8 rounded-xl border border-border bg-white p-6">
+      <div className="mb-6 rounded-2xl border border-border bg-white p-6 shadow-sm">
         <div className="flex items-start justify-between">
           <div className="flex items-center gap-4">
-            <div className="flex h-14 w-14 items-center justify-center rounded-full bg-primary-light text-xl font-bold text-primary">
+            <div className="flex h-16 w-16 shrink-0 items-center justify-center rounded-2xl bg-gradient-to-br from-primary-light to-primary-lighter text-2xl font-bold text-primary shadow-sm">
               {client.name.charAt(0).toUpperCase()}
             </div>
             <div>
@@ -138,27 +137,31 @@ export default function ClientDetailPage({
                 <input
                   value={form.name}
                   onChange={(e) => setForm({ ...form, name: e.target.value })}
-                  className="text-xl font-bold text-text outline-none border-b-2 border-primary pb-1"
+                  className="border-b-2 border-primary bg-transparent pb-1 text-xl font-bold text-text outline-none"
                 />
               ) : (
                 <h1 className="text-xl font-bold text-text">{client.name}</h1>
               )}
-              <p className="text-sm text-text-secondary">
+              <p className="mt-0.5 text-sm text-text-secondary">
                 Cliente desde{" "}
-                {new Date(client.createdAt).toLocaleDateString("es-AR")}
+                {new Date(client.createdAt).toLocaleDateString("es-AR", {
+                  year: "numeric",
+                  month: "long",
+                  day: "numeric",
+                })}
               </p>
             </div>
           </div>
           <div className="flex gap-2">
             <button
               onClick={() => setEditing(!editing)}
-              className="rounded-lg border border-border px-4 py-2 text-sm text-text-secondary transition-colors hover:bg-background hover:text-text"
+              className="rounded-xl border border-border px-4 py-2 text-sm text-text-secondary transition-all hover:border-primary/30 hover:bg-primary-light hover:text-primary"
             >
               {editing ? "Cancelar" : "Editar"}
             </button>
             <button
-              onClick={handleDelete}
-              className="rounded-lg border border-red-200 px-4 py-2 text-sm text-red-500 transition-colors hover:bg-red-50"
+              onClick={() => setShowDelete(true)}
+              className="rounded-xl border border-danger/20 px-4 py-2 text-sm text-danger transition-all hover:bg-danger-light"
             >
               Eliminar
             </button>
@@ -169,93 +172,79 @@ export default function ClientDetailPage({
           <form onSubmit={handleUpdate} className="mt-6 space-y-4">
             <div className="grid gap-4 sm:grid-cols-2">
               <div>
-                <label className="mb-1 block text-sm font-medium text-text">
-                  Nombre
-                </label>
+                <label className="mb-1 block text-sm font-medium text-text">Nombre</label>
                 <input
                   value={form.name}
                   onChange={(e) => setForm({ ...form, name: e.target.value })}
-                  className="w-full rounded-lg border border-border px-4 py-2.5 text-sm outline-none focus:border-primary focus:ring-2 focus:ring-primary/20"
+                  className="w-full rounded-xl border border-border px-4 py-2.5 text-sm outline-none transition-all focus:border-primary/50 focus:ring-2 focus:ring-primary/10"
                 />
               </div>
               <div>
-                <label className="mb-1 block text-sm font-medium text-text">
-                  Teléfono
-                </label>
+                <label className="mb-1 block text-sm font-medium text-text">Teléfono</label>
                 <input
                   value={form.phone}
                   onChange={(e) => setForm({ ...form, phone: e.target.value })}
-                  className="w-full rounded-lg border border-border px-4 py-2.5 text-sm outline-none focus:border-primary focus:ring-2 focus:ring-primary/20"
+                  className="w-full rounded-xl border border-border px-4 py-2.5 text-sm outline-none transition-all focus:border-primary/50 focus:ring-2 focus:ring-primary/10"
                 />
               </div>
               <div>
-                <label className="mb-1 block text-sm font-medium text-text">
-                  Email
-                </label>
+                <label className="mb-1 block text-sm font-medium text-text">Email</label>
                 <input
                   value={form.email}
                   onChange={(e) => setForm({ ...form, email: e.target.value })}
-                  className="w-full rounded-lg border border-border px-4 py-2.5 text-sm outline-none focus:border-primary focus:ring-2 focus:ring-primary/20"
+                  className="w-full rounded-xl border border-border px-4 py-2.5 text-sm outline-none transition-all focus:border-primary/50 focus:ring-2 focus:ring-primary/10"
                 />
               </div>
               <div>
-                <label className="mb-1 block text-sm font-medium text-text">
-                  Medio de pago
-                </label>
+                <label className="mb-1 block text-sm font-medium text-text">Medio de pago</label>
                 <input
                   value={form.paymentMethod}
-                  onChange={(e) =>
-                    setForm({ ...form, paymentMethod: e.target.value })
-                  }
-                  className="w-full rounded-lg border border-border px-4 py-2.5 text-sm outline-none focus:border-primary focus:ring-2 focus:ring-primary/20"
+                  onChange={(e) => setForm({ ...form, paymentMethod: e.target.value })}
+                  className="w-full rounded-xl border border-border px-4 py-2.5 text-sm outline-none transition-all focus:border-primary/50 focus:ring-2 focus:ring-primary/10"
                 />
               </div>
             </div>
             <button
               type="submit"
-              className="rounded-lg bg-primary px-6 py-2.5 text-sm font-semibold text-white transition-colors hover:bg-primary-dark"
+              className="inline-flex items-center gap-2 rounded-xl bg-primary px-6 py-2.5 text-sm font-semibold text-white shadow-sm transition-all hover:bg-primary-dark hover:shadow-md"
             >
               Guardar cambios
             </button>
           </form>
         ) : (
           <div className="mt-6 grid gap-4 sm:grid-cols-3">
-            <div>
-              <p className="text-xs font-medium text-text-secondary">
-                Teléfono
-              </p>
-              <p className="mt-0.5 text-sm text-text">{client.phone}</p>
+            <div className="rounded-xl bg-background p-4 transition-colors hover:bg-primary-light/30">
+              <p className="text-xs font-medium text-text-secondary">Teléfono</p>
+              <p className="mt-0.5 text-sm font-medium text-text">{client.phone}</p>
             </div>
-            <div>
+            <div className="rounded-xl bg-background p-4 transition-colors hover:bg-primary-light/30">
               <p className="text-xs font-medium text-text-secondary">Email</p>
-              <p className="mt-0.5 text-sm text-text">
+              <p className="mt-0.5 text-sm font-medium text-text">
                 {client.email || "—"}
               </p>
             </div>
-            <div>
-              <p className="text-xs font-medium text-text-secondary">
-                Medio de pago
-              </p>
-              <p className="mt-0.5 text-sm text-text">
+            <div className="rounded-xl bg-background p-4 transition-colors hover:bg-primary-light/30">
+              <p className="text-xs font-medium text-text-secondary">Medio de pago</p>
+              <p className="mt-0.5 text-sm font-medium text-text">
                 {client.paymentMethod || "—"}
               </p>
             </div>
           </div>
         )}
 
-        <div className="mt-6 flex gap-3">
+        <div className="mt-6">
           <a
             href={whatsappLink}
             target="_blank"
             rel="noopener noreferrer"
-            className="inline-flex items-center gap-2 rounded-lg bg-success px-5 py-2.5 text-sm font-semibold text-white transition-colors hover:bg-green-600"
+            className="inline-flex items-center gap-2.5 rounded-xl bg-gradient-to-r from-success to-emerald-600 px-6 py-3 text-sm font-semibold text-white shadow-sm transition-all hover:shadow-md hover:brightness-105"
           >
             💬 Enviar WhatsApp
           </a>
         </div>
       </div>
 
-      <div className="rounded-xl border border-border bg-white p-6">
+      <div className="rounded-2xl border border-border bg-white p-6 shadow-sm">
         <h2 className="mb-4 text-base font-semibold text-text">Notas</h2>
 
         <form onSubmit={handleAddNote} className="mb-6">
@@ -263,13 +252,13 @@ export default function ClientDetailPage({
             <input
               value={newNote}
               onChange={(e) => setNewNote(e.target.value)}
-              placeholder="Ej: Me pidió que la contacte a fin de mes..."
-              className="flex-1 rounded-lg border border-border px-4 py-2.5 text-sm text-text outline-none focus:border-primary focus:ring-2 focus:ring-primary/20"
+              placeholder='Ej: "Me pidió que la contacte a fin de mes..."'
+              className="flex-1 rounded-xl border border-border px-4 py-2.5 text-sm text-text outline-none transition-all focus:border-primary/50 focus:ring-2 focus:ring-primary/10"
             />
             <button
               type="submit"
               disabled={savingNote || !newNote.trim()}
-              className="rounded-lg bg-primary px-5 py-2.5 text-sm font-semibold text-white transition-colors hover:bg-primary-dark disabled:opacity-50"
+              className="inline-flex items-center gap-1.5 rounded-xl bg-primary px-5 py-2.5 text-sm font-semibold text-white shadow-sm transition-all hover:bg-primary-dark disabled:opacity-50"
             >
               {savingNote ? "..." : "Agregar"}
             </button>
@@ -278,24 +267,44 @@ export default function ClientDetailPage({
 
         <div className="space-y-3">
           {client.notes.length === 0 ? (
-            <p className="py-6 text-center text-sm text-text-secondary">
-              No hay notas todavía. Agregá un recordatorio para este cliente.
-            </p>
+            <div className="py-8 text-center">
+              <div className="mx-auto mb-2 flex h-12 w-12 items-center justify-center rounded-xl bg-background text-xl">
+                📝
+              </div>
+              <p className="text-sm text-text-secondary">
+                No hay notas. Agregá un recordatorio para este cliente.
+              </p>
+            </div>
           ) : (
             client.notes.map((note) => (
               <div
                 key={note.id}
-                className="rounded-lg bg-background p-4"
+                className="animate-slide-up rounded-xl bg-background p-4 transition-colors hover:bg-primary-light/20"
               >
                 <p className="text-sm text-text">{note.content}</p>
-                <p className="mt-1 text-xs text-text-secondary/60">
-                  {new Date(note.createdAt).toLocaleString("es-AR")}
+                <p className="mt-1.5 text-xs text-text-muted">
+                  {new Date(note.createdAt).toLocaleString("es-AR", {
+                    day: "numeric",
+                    month: "long",
+                    hour: "2-digit",
+                    minute: "2-digit",
+                  })}
                 </p>
               </div>
             ))
           )}
         </div>
       </div>
+
+      <ConfirmModal
+        open={showDelete}
+        title="Eliminar cliente"
+        message={`¿Estás segura de eliminar a ${client.name}? También se borrarán todas sus notas. Esta acción no se puede deshacer.`}
+        confirmLabel="Eliminar"
+        danger
+        onConfirm={handleDelete}
+        onCancel={() => setShowDelete(false)}
+      />
     </div>
   );
 }

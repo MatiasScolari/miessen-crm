@@ -2,16 +2,16 @@ import Link from "next/link";
 
 export default function LandingPage() {
   return (
-    <div className="min-h-screen">
-      <header className="border-b border-border bg-white/80 backdrop-blur-sm">
+    <div className="min-h-screen bg-gradient-to-b from-white via-background to-background">
+      <header className="border-b border-border/60 bg-white/90 backdrop-blur-md">
         <div className="mx-auto flex max-w-6xl items-center justify-between px-6 py-4">
           <div className="flex items-center gap-2">
-            <span className="text-2xl">🍳</span>
-            <span className="text-xl font-semibold text-text">
-              Alumia
-            </span>
+            <div className="flex h-9 w-9 items-center justify-center rounded-lg bg-gradient-to-br from-primary to-primary-dark text-sm font-bold text-white shadow-sm">
+              A
+            </div>
+            <span className="text-lg font-semibold text-text">Alumia</span>
           </div>
-          <div className="flex items-center gap-4">
+          <div className="flex items-center gap-3">
             <Link
               href="/login"
               className="rounded-lg px-4 py-2 text-sm font-medium text-text-secondary transition-colors hover:text-text"
@@ -20,7 +20,7 @@ export default function LandingPage() {
             </Link>
             <Link
               href="/register"
-              className="rounded-lg bg-primary px-5 py-2 text-sm font-medium text-white transition-colors hover:bg-primary-dark"
+              className="rounded-lg bg-primary px-5 py-2 text-sm font-medium text-white shadow-sm transition-all hover:bg-primary-dark hover:shadow-md"
             >
               Crear cuenta
             </Link>
@@ -29,14 +29,17 @@ export default function LandingPage() {
       </header>
 
       <main>
-        <section className="mx-auto max-w-6xl px-6 pt-24 pb-16 text-center">
-          <span className="inline-block rounded-full bg-primary-light px-4 py-1.5 text-sm font-medium text-primary">
-            Para emprendedoras Essen
+        <section className="mx-auto max-w-6xl px-6 pt-24 pb-20 text-center">
+          <span className="inline-flex items-center gap-1.5 rounded-full border border-primary/20 bg-primary-light px-4 py-1.5 text-sm font-medium text-primary">
+            <span className="h-1.5 w-1.5 rounded-full bg-primary" />
+            Para emprendedoras
           </span>
           <h1 className="mt-6 text-4xl font-bold leading-tight text-text md:text-5xl lg:text-6xl">
             Organizá tus clientes
             <br />
-            <span className="text-primary">y hacé crecer tu negocio</span>
+            <span className="bg-gradient-to-r from-primary to-primary-dark bg-clip-text text-transparent">
+              y hacé crecer tu negocio
+            </span>
           </h1>
           <p className="mx-auto mt-4 max-w-xl text-lg text-text-secondary">
             Un CRM simple y hermoso para gestionar tus contactos, hacer
@@ -45,104 +48,138 @@ export default function LandingPage() {
           <div className="mt-8 flex items-center justify-center gap-4">
             <Link
               href="/register"
-              className="rounded-xl bg-primary px-8 py-3.5 text-base font-semibold text-white shadow-lg shadow-primary/30 transition-all hover:bg-primary-dark hover:shadow-xl hover:shadow-primary/40"
+              className="inline-flex items-center gap-2 rounded-xl bg-primary px-8 py-3.5 text-base font-semibold text-white shadow-lg shadow-primary/30 transition-all hover:bg-primary-dark hover:shadow-xl hover:shadow-primary/40"
             >
               Quiero probarlo gratis
+              <span>→</span>
             </Link>
             <Link
               href="/login"
-              className="rounded-xl border-2 border-border bg-white px-8 py-3.5 text-base font-semibold text-text transition-colors hover:border-primary hover:text-primary"
+              className="rounded-xl border-2 border-border bg-white px-8 py-3.5 text-base font-semibold text-text transition-colors hover:border-primary/30 hover:text-primary"
             >
               Ya tengo cuenta
             </Link>
           </div>
         </section>
 
-        <section className="mx-auto max-w-6xl px-6 py-16">
+        <section className="mx-auto max-w-6xl px-6 pb-20">
           <div className="grid gap-6 md:grid-cols-3">
-            <div className="rounded-2xl border border-border bg-white p-8 text-center transition-shadow hover:shadow-lg">
-              <div className="mx-auto mb-4 flex h-14 w-14 items-center justify-center rounded-xl bg-primary-light">
-                <span className="text-2xl">👥</span>
+            <div className="group animate-slide-up rounded-2xl border border-border bg-white p-8 text-center transition-all hover:-translate-y-1 hover:border-primary/20 hover:shadow-lg hover:shadow-primary/5">
+              <div className="mx-auto mb-5 flex h-14 w-14 items-center justify-center rounded-xl bg-primary-light text-2xl transition-transform group-hover:scale-110">
+                👥
               </div>
               <h3 className="text-lg font-semibold text-text">
                 Tus clientes organizados
               </h3>
-              <p className="mt-2 text-sm text-text-secondary">
+              <p className="mt-2 text-sm leading-relaxed text-text-secondary">
                 Guardá nombre, teléfono, email y medio de pago. Todo en un solo
-                lugar.
+                lugar, siempre a mano.
               </p>
             </div>
 
-            <div className="rounded-2xl border border-border bg-white p-8 text-center transition-shadow hover:shadow-lg">
-              <div className="mx-auto mb-4 flex h-14 w-14 items-center justify-center rounded-xl bg-secondary-light">
-                <span className="text-2xl">📝</span>
+            <div className="group animate-slide-up rounded-2xl border border-border bg-white p-8 text-center transition-all hover:-translate-y-1 hover:border-secondary/20 hover:shadow-lg hover:shadow-secondary/5 [animation-delay:0.1s]">
+              <div className="mx-auto mb-5 flex h-14 w-14 items-center justify-center rounded-xl bg-secondary-light text-2xl transition-transform group-hover:scale-110">
+                📝
               </div>
               <h3 className="text-lg font-semibold text-text">
                 Notas y seguimiento
               </h3>
-              <p className="mt-2 text-sm text-text-secondary">
-                Anotá "contactar a fin de mes" o cualquier recordatorio para no
-                olvidarte.
+              <p className="mt-2 text-sm leading-relaxed text-text-secondary">
+                Anotá recordatorios, fechas importantes, y nunca te olvides de
+                hacer seguimiento a tus clientes.
               </p>
             </div>
 
-            <div className="rounded-2xl border border-border bg-white p-8 text-center transition-shadow hover:shadow-lg">
-              <div className="mx-auto mb-4 flex h-14 w-14 items-center justify-center rounded-xl bg-success-light">
-                <span className="text-2xl">💬</span>
+            <div className="group animate-slide-up rounded-2xl border border-border bg-white p-8 text-center transition-all hover:-translate-y-1 hover:border-success/20 hover:shadow-lg hover:shadow-success/5 [animation-delay:0.2s]">
+              <div className="mx-auto mb-5 flex h-14 w-14 items-center justify-center rounded-xl bg-success-light text-2xl transition-transform group-hover:scale-110">
+                💬
               </div>
               <h3 className="text-lg font-semibold text-text">
                 WhatsApp directo
               </h3>
-              <p className="mt-2 text-sm text-text-secondary">
+              <p className="mt-2 text-sm leading-relaxed text-text-secondary">
                 Contactá a tus clientes con un clic. Mensajes pre-armados para
-                ahorrar tiempo.
+                ahorrar tiempo y vender más.
               </p>
             </div>
           </div>
         </section>
 
-        <section className="bg-white py-16">
-          <div className="mx-auto max-w-6xl px-6 text-center">
+        <section className="border-y border-border/40 bg-white py-20">
+          <div className="mx-auto max-w-4xl px-6 text-center">
             <h2 className="text-3xl font-bold text-text">
-              ¿Para quién es esta herramienta?
+              Todo lo que necesitás en un solo lugar
             </h2>
-            <p className="mx-auto mt-4 max-w-2xl text-text-secondary">
-              Para revendedoras Essen que quieren llevar el control de sus
-              clientes de forma profesional. También apto para cualquier
-              emprendedora que venda productos por catálogo.
+            <p className="mx-auto mt-3 max-w-xl text-text-secondary">
+              Olvidate de los papelitos y los contactos perdidos en WhatsApp.
+              Llevá el control profesional de tu negocio.
             </p>
-            <div className="mt-8 flex flex-wrap justify-center gap-3">
-              <span className="rounded-full bg-primary-light px-4 py-2 text-sm font-medium text-primary">
-                Revendedoras Essen
-              </span>
-              <span className="rounded-full bg-secondary-light px-4 py-2 text-sm font-medium text-secondary">
-                Emprendedoras
-              </span>
-              <span className="rounded-full bg-success-light px-4 py-2 text-sm font-medium text-success">
-                Equipos de ventas
-              </span>
+            <div className="mt-10 grid gap-4 text-left md:grid-cols-2">
+              <div className="flex items-start gap-4 rounded-xl bg-background p-5">
+                <span className="mt-0.5 flex h-8 w-8 shrink-0 items-center justify-center rounded-lg bg-primary-light text-sm">
+                  ✓
+                </span>
+                <div>
+                  <p className="font-medium text-text">Base de clientes</p>
+                  <p className="mt-1 text-sm text-text-secondary">
+                    Todos tus contactos con notas y seguimiento
+                  </p>
+                </div>
+              </div>
+              <div className="flex items-start gap-4 rounded-xl bg-background p-5">
+                <span className="mt-0.5 flex h-8 w-8 shrink-0 items-center justify-center rounded-lg bg-success-light text-sm text-success">
+                  ✓
+                </span>
+                <div>
+                  <p className="font-medium text-text">WhatsApp integrado</p>
+                  <p className="mt-1 text-sm text-text-secondary">
+                    Contactá clientes con un clic, mensajes listos
+                  </p>
+                </div>
+              </div>
+              <div className="flex items-start gap-4 rounded-xl bg-background p-5">
+                <span className="mt-0.5 flex h-8 w-8 shrink-0 items-center justify-center rounded-lg bg-secondary-light text-sm text-secondary">
+                  ✓
+                </span>
+                <div>
+                  <p className="font-medium text-text">Multi-usuario</p>
+                  <p className="mt-1 text-sm text-text-secondary">
+                    Invitá a tu equipo, cada una con sus clientes
+                  </p>
+                </div>
+              </div>
+              <div className="flex items-start gap-4 rounded-xl bg-background p-5">
+                <span className="mt-0.5 flex h-8 w-8 shrink-0 items-center justify-center rounded-lg bg-primary-light text-sm">
+                  ✓
+                </span>
+                <div>
+                  <p className="font-medium text-text">100% gratis</p>
+                  <p className="mt-1 text-sm text-text-secondary">
+                    Sin costos ocultos, sin tarjetas de crédito
+                  </p>
+                </div>
+              </div>
             </div>
           </div>
         </section>
 
-        <section className="mx-auto max-w-6xl px-6 py-16 text-center">
-          <h2 className="text-2xl font-bold text-text">
-            ¿Lista para empezar?
-          </h2>
+        <section className="mx-auto max-w-6xl px-6 py-20 text-center">
+          <h2 className="text-2xl font-bold text-text">¿Lista para empezar?</h2>
           <p className="mt-2 text-text-secondary">
-            Crea tu cuenta gratis y empezá a organizar tus clientes hoy mismo.
+            Creá tu cuenta gratis y empezá a organizar tus clientes hoy mismo.
           </p>
           <Link
             href="/register"
-            className="mt-6 inline-block rounded-xl bg-primary px-8 py-3.5 text-base font-semibold text-white shadow-lg shadow-primary/30 transition-all hover:bg-primary-dark"
+            className="mt-6 inline-flex items-center gap-2 rounded-xl bg-primary px-8 py-3.5 text-base font-semibold text-white shadow-lg shadow-primary/30 transition-all hover:bg-primary-dark hover:shadow-xl"
           >
             Crear mi cuenta gratis
+            <span>→</span>
           </Link>
         </section>
       </main>
 
-      <footer className="border-t border-border py-8 text-center text-sm text-text-secondary">
-        <p>Hecho con 💕 para emprendedoras</p>
+      <footer className="border-t border-border/60 py-8 text-center text-sm text-text-muted">
+        <p>Alumia © {new Date().getFullYear()} — Hecho para emprendedoras</p>
       </footer>
     </div>
   );

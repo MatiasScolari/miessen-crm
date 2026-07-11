@@ -38,28 +38,28 @@ function RegisterForm() {
   }
 
   return (
-    <div className="flex min-h-screen items-center justify-center bg-background px-4">
-      <div className="w-full max-w-md">
+    <div className="flex min-h-screen items-center justify-center bg-gradient-to-br from-background via-white to-background px-4">
+      <div className="w-full max-w-sm animate-fade-in">
         <div className="mb-8 text-center">
-          <Link href="/" className="text-2xl">
-            🍳
+          <Link href="/" className="inline-flex items-center gap-2">
+            <div className="mx-auto flex h-10 w-10 items-center justify-center rounded-xl bg-gradient-to-br from-primary to-primary-dark text-lg font-bold text-white shadow-md">
+              A
+            </div>
           </Link>
-          <h1 className="mt-2 text-2xl font-bold text-text">
-            Crear cuenta
-          </h1>
+          <h1 className="mt-4 text-xl font-bold text-text">Crear cuenta</h1>
           <p className="mt-1 text-sm text-text-secondary">
             {token
-               ? "Te invitaron a unirte a Alumia"
+              ? "Te invitaron a unirte a Alumia"
               : "Empezá a organizar tus clientes"}
           </p>
         </div>
 
         <form
           onSubmit={handleSubmit}
-          className="rounded-2xl border border-border bg-white p-8 shadow-sm"
+          className="rounded-2xl border border-border bg-white p-6 shadow-sm"
         >
           {error && (
-            <div className="mb-4 rounded-lg bg-red-50 px-4 py-3 text-sm text-red-600">
+            <div className="mb-4 animate-fade-in rounded-xl bg-danger-light px-4 py-3 text-sm text-danger">
               {error}
             </div>
           )}
@@ -78,7 +78,7 @@ function RegisterForm() {
               onChange={(e) => setName(e.target.value)}
               placeholder="María García"
               required
-              className="w-full rounded-lg border border-border px-4 py-2.5 text-sm text-text outline-none transition-colors focus:border-primary focus:ring-2 focus:ring-primary/20"
+              className="w-full rounded-xl border border-border px-4 py-2.5 text-sm text-text outline-none transition-all focus:border-primary/50 focus:ring-2 focus:ring-primary/10"
             />
           </div>
 
@@ -96,7 +96,7 @@ function RegisterForm() {
               onChange={(e) => setEmail(e.target.value)}
               placeholder="tu@email.com"
               required
-              className="w-full rounded-lg border border-border px-4 py-2.5 text-sm text-text outline-none transition-colors focus:border-primary focus:ring-2 focus:ring-primary/20"
+              className="w-full rounded-xl border border-border px-4 py-2.5 text-sm text-text outline-none transition-all focus:border-primary/50 focus:ring-2 focus:ring-primary/10"
             />
           </div>
 
@@ -115,15 +115,18 @@ function RegisterForm() {
               placeholder="Mínimo 6 caracteres"
               required
               minLength={6}
-              className="w-full rounded-lg border border-border px-4 py-2.5 text-sm text-text outline-none transition-colors focus:border-primary focus:ring-2 focus:ring-primary/20"
+              className="w-full rounded-xl border border-border px-4 py-2.5 text-sm text-text outline-none transition-all focus:border-primary/50 focus:ring-2 focus:ring-primary/10"
             />
           </div>
 
           <button
             type="submit"
             disabled={loading}
-            className="w-full rounded-lg bg-primary px-4 py-2.5 text-sm font-semibold text-white transition-colors hover:bg-primary-dark disabled:opacity-50"
+            className="flex w-full items-center justify-center gap-2 rounded-xl bg-primary px-4 py-2.5 text-sm font-semibold text-white shadow-sm transition-all hover:bg-primary-dark hover:shadow-md disabled:opacity-50"
           >
+            {loading && (
+              <span className="h-4 w-4 animate-spin rounded-full border-2 border-white/30 border-t-white" />
+            )}
             {loading ? "Creando cuenta..." : "Crear cuenta"}
           </button>
         </form>
