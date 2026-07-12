@@ -1,6 +1,6 @@
 import Link from "next/link";
 
-const WHATSAPP_NUMBER = "541123456789";
+const WHATSAPP_NUMBER = "5491133644207";
 const WHATSAPP_MSG = encodeURIComponent("Hola! Quiero info sobre Alumia");
 
 export default function LandingPage() {
