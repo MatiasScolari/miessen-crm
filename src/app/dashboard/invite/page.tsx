@@ -18,19 +18,88 @@ export default function UsersPage() {
   const { toast } = useToast();
   const [users, setUsers] = useState<User[]>([]);
   const [loading, setLoading] = useState(true);
-  const [tab, setTab] = useState<"list" | "invite" | "create">("list");
+  const [showForm, setShowForm] = useState(false);
   const [editUser, setEditUser] = useState<User | null>(null);
   const [deleteTarget, setDeleteTarget] = useState<User | null>(null);
   const [suspendTarget, setSuspendTarget] = useState<User | null>(null);
   const [suspendAction, setSuspendAction] = useState<"suspend" | "activate">("suspend");
+  const [form, setForm] = useState({ name: "", email: "", password: "" });
+  const [saving, setSaving] = useState(false);
+  const [error, setError] = useState("");
 
   const loadUsers = useCallback(async () => {
     const res = await fetch("/api/users");
-    if (res.ok) setUsers(await res.json());
+    if (res.ok) {
+      const data = await res.json();
+      data.sort((a: User, b: User) => {
+        if (a.role === "admin") return -1;
+        if (b.role === "admin") return 1;
+          return new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime();
+      });
+      setUsers(data);
+    }
     setLoading(false);
   }, []);
 
   useEffect(() => { loadUsers(); }, [loadUsers]);
+
+  function resetForm() {
+    setForm({ name: "", email: "", password: "" });
+    setEditUser(null);
+    setShowForm(false);
+    setError("");
+  }
+
+  async function handleSubmit(e: React.FormEvent) {
+    e.preventDefault();
+    setSaving(true);
+    setError("");
+
+    if (editUser) {
+      const body: any = {};
+      if (form.name) body.name = form.name;
+      if (form.email) body.email = form.email;
+      if (form.password) body.password = form.password;
+      if (!body.name && !body.email && !body.password) {
+        setError("Cambiá al menos un campo");
+        setSaving(false);
+        return;
+      }
+      const res = await fetch(`/api/users/${editUser.id}`, {
+        method: "PUT",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(body),
+      });
+      if (res.ok) {
+        toast("success", "Usuario actualizado");
+        resetForm();
+        loadUsers();
+      } else {
+        const d = await res.json();
+        setError(d.error);
+      }
+    } else {
+      if (!form.name || !form.email || !form.password) {
+        setError("Todos los campos son requeridos");
+        setSaving(false);
+        return;
+      }
+      const res = await fetch("/api/users", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(form),
+      });
+      if (res.ok) {
+        toast("success", "Usuario creado");
+        resetForm();
+        loadUsers();
+      } else {
+        const d = await res.json();
+        setError(d.error);
+      }
+    }
+    setSaving(false);
+  }
 
   async function toggleStatus(user: User) {
     const newStatus = user.status === "active" ? "suspended" : "active";
@@ -49,7 +118,7 @@ export default function UsersPage() {
     if (!deleteTarget) return;
     const res = await fetch(`/api/users/${deleteTarget.id}`, { method: "DELETE" });
     if (res.ok) {
-      toast("success", "Usuaria eliminada");
+      toast("success", "Usuario eliminado");
       setDeleteTarget(null);
       loadUsers();
     }
@@ -57,79 +126,168 @@ export default function UsersPage() {
 
   return (
     <div className="max-w-4xl animate-fade-in">
-      <div className="mb-6">
-        <h1 className="text-2xl font-bold text-text">Usuarios</h1>
-        <p className="mt-1 text-sm text-text-secondary">
-          Gestioná las cuentas de tu equipo
-        </p>
+      <div className="mb-6 flex items-center justify-between">
+        <div>
+          <h1 className="text-2xl font-bold text-text">Usuarios</h1>
+          <p className="mt-1 text-sm text-text-secondary">
+            {users.length} usuario{users.length !== 1 ? "s" : ""}
+          </p>
+        </div>
+        <button
+          onClick={() => { resetForm(); setShowForm(!showForm); }}
+          className="inline-flex items-center gap-1.5 rounded-xl bg-primary px-5 py-2.5 text-sm font-semibold text-white shadow-sm transition-all hover:bg-primary-dark hover:shadow-md"
+        >
+          {showForm ? "✕ Cancelar" : "+ Crear Usuario"}
+        </button>
       </div>
 
-      <div className="mb-6 flex gap-1 rounded-xl bg-background p-1">
-        {(["list", "invite", "create"] as const).map((t) => (
-          <button
-            key={t}
-            onClick={() => { setTab(t); setEditUser(null); }}
-            className={`flex-1 rounded-lg px-4 py-2 text-sm font-medium transition-all ${
-              tab === t
-                ? "bg-white text-text shadow-sm"
-                : "text-text-secondary hover:text-text"
-            }`}
-          >
-            {t === "list" ? `Usuarios (${users.length})` : t === "invite" ? "Invitar" : "Crear manual"}
-          </button>
-        ))}
-      </div>
+      {showForm && (
+        <form
+          onSubmit={handleSubmit}
+          className="mb-6 animate-slide-up rounded-2xl border border-border bg-white p-6 shadow-sm"
+        >
+          <h2 className="mb-1 text-base font-semibold text-text">
+            {editUser ? `Editar: ${editUser.name}` : "Nuevo usuario"}
+          </h2>
+          <p className="mb-4 text-sm text-text-secondary">
+            {editUser
+              ? "Dejá la contraseña vacía si no querés cambiarla."
+              : "Creá la cuenta con los datos de la vendedora."}
+          </p>
 
-      {tab === "list" && (
-        <div className="rounded-2xl border border-border bg-white shadow-sm divide-y divide-border/60">
-          {loading ? (
-            <div className="space-y-4 px-6 py-8">
-              {[1, 2].map((i) => (
-                <div key={i} className="flex items-center gap-4">
-                  <div className="h-10 w-10 animate-pulse rounded-full bg-border" />
-                  <div className="flex-1 space-y-2">
-                    <div className="h-4 w-32 animate-pulse rounded bg-border" />
-                    <div className="h-3 w-48 animate-pulse rounded bg-border" />
-                  </div>
+          {error && (
+            <div className="mb-4 animate-fade-in rounded-xl bg-danger-light px-4 py-3 text-sm text-danger">
+              {error}
+            </div>
+          )}
+
+          <div className="mb-4 grid gap-4 sm:grid-cols-3">
+            <div>
+              <label className="mb-1 block text-sm font-medium text-text">Nombre</label>
+              <input
+                value={form.name}
+                onChange={(e) => setForm({ ...form, name: e.target.value })}
+                placeholder="Nombre completo"
+                required={!editUser}
+                className="w-full rounded-xl border border-border px-4 py-2.5 text-sm text-text outline-none transition-all focus:border-primary/50 focus:ring-2 focus:ring-primary/10"
+              />
+            </div>
+            <div>
+              <label className="mb-1 block text-sm font-medium text-text">Email</label>
+              <input
+                type="email"
+                value={form.email}
+                onChange={(e) => setForm({ ...form, email: e.target.value })}
+                placeholder="vendedora@email.com"
+                required={!editUser}
+                className="w-full rounded-xl border border-border px-4 py-2.5 text-sm text-text outline-none transition-all focus:border-primary/50 focus:ring-2 focus:ring-primary/10"
+              />
+            </div>
+            <div>
+              <label className="mb-1 block text-sm font-medium text-text">
+                {editUser ? "Nueva contraseña" : "Contraseña"}
+              </label>
+              <input
+                type="text"
+                value={form.password}
+                onChange={(e) => setForm({ ...form, password: e.target.value })}
+                placeholder={editUser ? "Dejá vacío para mantener" : "Mínimo 6 caracteres"}
+                minLength={editUser ? undefined : 6}
+                className="w-full rounded-xl border border-border px-4 py-2.5 text-sm text-text outline-none transition-all focus:border-primary/50 focus:ring-2 focus:ring-primary/10"
+              />
+            </div>
+          </div>
+
+          <div className="flex gap-3">
+            <button
+              type="submit"
+              disabled={saving}
+              className="inline-flex items-center gap-2 rounded-xl bg-primary px-6 py-2.5 text-sm font-semibold text-white shadow-sm transition-all hover:bg-primary-dark hover:shadow-md disabled:opacity-50"
+            >
+              {saving && (
+                <span className="h-4 w-4 animate-spin rounded-full border-2 border-white/30 border-t-white" />
+              )}
+              {saving ? "Guardando..." : editUser ? "Guardar cambios" : "Crear usuario"}
+            </button>
+            <button
+              type="button"
+              onClick={resetForm}
+              className="rounded-xl border border-border/60 px-6 py-2.5 text-sm text-text-secondary transition-all hover:border-border hover:bg-background"
+            >
+              Cancelar
+            </button>
+          </div>
+        </form>
+      )}
+
+      <div className="rounded-2xl border border-border bg-white shadow-sm divide-y divide-border/60">
+        {loading ? (
+          <div className="space-y-4 px-6 py-8">
+            {[1, 2].map((i) => (
+              <div key={i} className="flex items-center gap-4">
+                <div className="h-10 w-10 animate-pulse rounded-full bg-border" />
+                <div className="flex-1 space-y-2">
+                  <div className="h-4 w-32 animate-pulse rounded bg-border" />
+                  <div className="h-3 w-48 animate-pulse rounded bg-border" />
                 </div>
-              ))}
-            </div>
-          ) : users.length === 0 ? (
-            <div className="px-6 py-14 text-center">
-              <div className="mx-auto mb-3 flex h-14 w-14 items-center justify-center rounded-2xl bg-primary-light text-2xl">
-                👤
               </div>
-              <p className="text-sm text-text-secondary">No hay usuarios registradas</p>
+            ))}
+          </div>
+        ) : users.length === 0 ? (
+          <div className="px-6 py-14 text-center">
+            <div className="mx-auto mb-3 flex h-14 w-14 items-center justify-center rounded-2xl bg-primary-light text-2xl">
+              👥
             </div>
-          ) : (
-            users.map((user) => (
-              <div key={user.id} className="flex items-center justify-between px-6 py-4 transition-colors hover:bg-background/40">
-                <div className="flex items-center gap-3">
-                  <div className={`flex h-10 w-10 shrink-0 items-center justify-center rounded-full text-sm font-semibold ${
-                    user.status === "suspended"
+            <p className="text-sm text-text-secondary">No hay usuarios registrados</p>
+          </div>
+        ) : (
+          users.map((user) => (
+            <div
+              key={user.id}
+              className={`flex items-center justify-between px-6 py-4 transition-colors hover:bg-background/40 ${
+                user.role === "admin" ? "bg-primary-lighter/50" : ""
+              }`}
+            >
+              <div className="flex items-center gap-3">
+                <div className={`flex h-10 w-10 shrink-0 items-center justify-center rounded-full text-sm font-semibold ${
+                  user.role === "admin"
+                    ? "bg-gradient-to-br from-primary to-primary-dark text-white"
+                    : user.status === "suspended"
                       ? "bg-gray-100 text-gray-400"
                       : "bg-gradient-to-br from-primary-light to-primary-lighter text-primary"
-                  }`}>
-                    {user.name.charAt(0).toUpperCase()}
-                  </div>
-                  <div>
-                    <p className={`text-sm font-medium ${user.status === "suspended" ? "text-text-muted" : "text-text"}`}>
-                      {user.name}
-                      {user.status === "suspended" && (
-                        <span className="ml-2 rounded-md bg-gray-100 px-2 py-0.5 text-xs text-text-muted">
-                          Suspendida
-                        </span>
-                      )}
-                    </p>
-                    <p className="text-xs text-text-secondary">{user.email}</p>
+                }`}>
+                  {user.role === "admin" ? "⭐" : user.name.charAt(0).toUpperCase()}
+                </div>
+                <div>
+                  <p className={`text-sm font-medium ${user.status === "suspended" ? "text-text-muted" : "text-text"}`}>
+                    {user.name}
+                    {user.role === "admin" && (
+                      <span className="ml-2 rounded-md bg-primary-light px-2 py-0.5 text-xs text-primary">
+                        Superadmin
+                      </span>
+                    )}
+                    {user.status === "suspended" && (
+                      <span className="ml-2 rounded-md bg-gray-100 px-2 py-0.5 text-xs text-text-muted">
+                        Suspendido
+                      </span>
+                    )}
+                  </p>
+                  <p className="text-xs text-text-secondary">{user.email}</p>
+                  {user.role !== "admin" && (
                     <p className="text-xs text-text-muted">
                       {user._count.clients} cliente{user._count.clients !== 1 ? "s" : ""}
                     </p>
-                  </div>
+                  )}
                 </div>
+              </div>
+              {user.role !== "admin" && (
                 <div className="flex gap-2">
                   <button
-                    onClick={() => { setEditUser(user); setTab("create"); }}
+                    onClick={() => {
+                      setEditUser(user);
+                      setForm({ name: user.name, email: user.email, password: "" });
+                      setShowForm(true);
+                    }}
                     className="rounded-xl border border-border/60 px-3 py-1.5 text-xs text-text-secondary transition-all hover:border-primary/30 hover:bg-primary-light hover:text-primary"
                   >
                     Editar
@@ -154,29 +312,11 @@ export default function UsersPage() {
                     Eliminar
                   </button>
                 </div>
-              </div>
-            ))
-          )}
-        </div>
-      )}
-
-      {tab === "invite" && (
-        <InviteForm
-          onSuccess={() => { toast("success", "Invitación creada"); loadUsers(); }}
-        />
-      )}
-
-      {tab === "create" && (
-        <UserForm
-          editUser={editUser}
-          onDone={() => {
-            toast("success", editUser ? "Usuaria actualizada" : "Usuaria creada");
-            setEditUser(null);
-            setTab("list");
-            loadUsers();
-          }}
-        />
-      )}
+              )}
+            </div>
+          ))
+        )}
+      </div>
 
       <ConfirmModal
         open={!!deleteTarget}
@@ -193,8 +333,8 @@ export default function UsersPage() {
         title={suspendAction === "suspend" ? "Suspender cuenta" : "Activar cuenta"}
         message={
           suspendAction === "suspend"
-            ? `¿Suspendé a ${suspendTarget?.name}? No va a poder iniciar sesión hasta que la actives.`
-            : `¿Activá a ${suspendTarget?.name}? Va a poder iniciar sesión nuevamente.`
+            ? `¿Suspender a ${suspendTarget?.name}? No va a poder iniciar sesión.`
+            : `¿Activar a ${suspendTarget?.name}? Va a poder iniciar sesión nuevamente.`
         }
         confirmLabel={suspendAction === "suspend" ? "Suspender" : "Activar"}
         danger={suspendAction === "suspend"}
@@ -205,194 +345,5 @@ export default function UsersPage() {
         onCancel={() => setSuspendTarget(null)}
       />
     </div>
-  );
-}
-
-function InviteForm({ onSuccess }: { onSuccess: () => void }) {
-  const [email, setEmail] = useState("");
-  const [loading, setLoading] = useState(false);
-  const [result, setResult] = useState<{ type: "success" | "error"; message: string; url?: string } | null>(null);
-
-  async function handleSubmit(e: React.FormEvent) {
-    e.preventDefault();
-    setLoading(true);
-    setResult(null);
-    const res = await fetch("/api/invite", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ email }),
-    });
-    const data = await res.json();
-    if (res.ok) {
-      setResult({ type: "success", message: "Invitación creada", url: data.inviteUrl });
-      setEmail("");
-      onSuccess();
-    } else {
-      setResult({ type: "error", message: data.error });
-    }
-    setLoading(false);
-  }
-
-  return (
-    <form onSubmit={handleSubmit} className="animate-slide-up rounded-2xl border border-border bg-white p-6 shadow-sm">
-      <h2 className="text-base font-semibold text-text">Invitar por email</h2>
-      <p className="mb-4 text-sm text-text-secondary">La invitada recibirá un link único para crear su cuenta.</p>
-      <label className="mb-1.5 block text-sm font-medium text-text">Email</label>
-      <div className="flex gap-2">
-        <input
-          type="email"
-          value={email}
-          onChange={(e) => setEmail(e.target.value)}
-          placeholder="vendedora@email.com"
-          required
-          className="flex-1 rounded-xl border border-border px-4 py-2.5 text-sm text-text outline-none transition-all focus:border-primary/50 focus:ring-2 focus:ring-primary/10"
-        />
-        <button
-          type="submit"
-          disabled={loading}
-          className="inline-flex items-center gap-2 rounded-xl bg-primary px-6 py-2.5 text-sm font-semibold text-white shadow-sm transition-all hover:bg-primary-dark hover:shadow-md disabled:opacity-50"
-        >
-          {loading ? "Enviando..." : "Invitar"}
-        </button>
-      </div>
-      {result && (
-        <div className={`mt-4 animate-fade-in rounded-xl p-4 text-sm ${
-          result.type === "success"
-            ? "bg-success-light text-green-700"
-            : "bg-danger-light text-danger"
-        }`}>
-          <p className="font-medium">{result.message}</p>
-          {result.url && (
-            <div className="mt-2">
-              <p className="mb-1 text-xs">Compartí este link con la invitada:</p>
-              <input
-                readOnly
-                value={result.url}
-                onClick={(e) => e.currentTarget.select()}
-                className="w-full rounded-lg border border-success/30 bg-white px-3 py-2 text-xs text-green-700"
-              />
-            </div>
-          )}
-        </div>
-      )}
-    </form>
-  );
-}
-
-function UserForm({ editUser, onDone }: { editUser: User | null; onDone: () => void }) {
-  const [name, setName] = useState(editUser?.name || "");
-  const [email, setEmail] = useState(editUser?.email || "");
-  const [password, setPassword] = useState("");
-  const [loading, setLoading] = useState(false);
-  const [error, setError] = useState("");
-
-  async function handleSubmit(e: React.FormEvent) {
-    e.preventDefault();
-    setLoading(true);
-    setError("");
-
-    if (editUser) {
-      const body: any = {};
-      if (name) body.name = name;
-      if (email) body.email = email;
-      if (password) body.password = password;
-      if (!body.name && !body.email && !body.password) {
-        setError("Cambiá al menos un campo");
-        setLoading(false);
-        return;
-      }
-      const res = await fetch(`/api/users/${editUser.id}`, {
-        method: "PUT",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(body),
-      });
-      if (res.ok) onDone();
-      else { const d = await res.json(); setError(d.error); }
-    } else {
-      if (!name || !email || !password) {
-        setError("Todos los campos son requeridos");
-        setLoading(false);
-        return;
-      }
-      const res = await fetch("/api/users", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ name, email, password }),
-      });
-      if (res.ok) onDone();
-      else { const d = await res.json(); setError(d.error); }
-    }
-    setLoading(false);
-  }
-
-  return (
-    <form onSubmit={handleSubmit} className="animate-slide-up rounded-2xl border border-border bg-white p-6 shadow-sm">
-      <h2 className="text-base font-semibold text-text">
-        {editUser ? `Editar: ${editUser.name}` : "Crear usuario manualmente"}
-      </h2>
-      <p className="mb-4 text-sm text-text-secondary">
-        {editUser ? "Actualizá los datos. Dejá la contraseña vacía si no querés cambiarla." : "Creás la cuenta directamente, sin invitación."}
-      </p>
-
-      {error && (
-        <div className="mb-4 animate-fade-in rounded-xl bg-danger-light px-4 py-3 text-sm text-danger">{error}</div>
-      )}
-
-      <div className="mb-4 grid gap-4 sm:grid-cols-2">
-        <div>
-          <label className="mb-1 block text-sm font-medium text-text">Nombre</label>
-          <input
-            value={name}
-            onChange={(e) => setName(e.target.value)}
-            placeholder="Nombre completo"
-            required={!editUser}
-            className="w-full rounded-xl border border-border px-4 py-2.5 text-sm text-text outline-none transition-all focus:border-primary/50 focus:ring-2 focus:ring-primary/10"
-          />
-        </div>
-        <div>
-          <label className="mb-1 block text-sm font-medium text-text">Email</label>
-          <input
-            value={email}
-            onChange={(e) => setEmail(e.target.value)}
-            placeholder="vendedora@email.com"
-            required={!editUser}
-            className="w-full rounded-xl border border-border px-4 py-2.5 text-sm text-text outline-none transition-all focus:border-primary/50 focus:ring-2 focus:ring-primary/10"
-          />
-        </div>
-        <div className="sm:col-span-2">
-          <label className="mb-1 block text-sm font-medium text-text">
-            {editUser ? "Nueva contraseña (opcional)" : "Contraseña"}
-          </label>
-          <input
-            type="text"
-            value={password}
-            onChange={(e) => setPassword(e.target.value)}
-            placeholder={editUser ? "Dejá vacío para mantener la actual" : "Mínimo 6 caracteres"}
-            minLength={editUser ? undefined : 6}
-            className="w-full rounded-xl border border-border px-4 py-2.5 text-sm text-text outline-none transition-all focus:border-primary/50 focus:ring-2 focus:ring-primary/10"
-          />
-        </div>
-      </div>
-
-      <div className="flex gap-3">
-        <button
-          type="submit"
-          disabled={loading}
-          className="inline-flex items-center gap-2 rounded-xl bg-primary px-6 py-2.5 text-sm font-semibold text-white shadow-sm transition-all hover:bg-primary-dark hover:shadow-md disabled:opacity-50"
-        >
-          {loading && (
-            <span className="h-4 w-4 animate-spin rounded-full border-2 border-white/30 border-t-white" />
-          )}
-          {loading ? "Guardando..." : editUser ? "Guardar cambios" : "Crear usuario"}
-        </button>
-        <button
-          type="button"
-          onClick={onDone}
-          className="rounded-xl border border-border/60 px-6 py-2.5 text-sm text-text-secondary transition-all hover:border-border hover:bg-background"
-        >
-          Cancelar
-        </button>
-      </div>
-    </form>
   );
 }
