@@ -58,7 +58,7 @@ export default function UsersPage() {
   return (
     <div className="max-w-4xl animate-fade-in">
       <div className="mb-6">
-        <h1 className="text-2xl font-bold text-text">Usuarias</h1>
+        <h1 className="text-2xl font-bold text-text">Usuarios</h1>
         <p className="mt-1 text-sm text-text-secondary">
           Gestioná las cuentas de tu equipo
         </p>
@@ -75,7 +75,7 @@ export default function UsersPage() {
                 : "text-text-secondary hover:text-text"
             }`}
           >
-            {t === "list" ? `Usuarias (${users.length})` : t === "invite" ? "Invitar" : "Crear manual"}
+            {t === "list" ? `Usuarios (${users.length})` : t === "invite" ? "Invitar" : "Crear manual"}
           </button>
         ))}
       </div>
@@ -99,7 +99,7 @@ export default function UsersPage() {
               <div className="mx-auto mb-3 flex h-14 w-14 items-center justify-center rounded-2xl bg-primary-light text-2xl">
                 👤
               </div>
-              <p className="text-sm text-text-secondary">No hay usuarias registradas</p>
+              <p className="text-sm text-text-secondary">No hay usuarios registradas</p>
             </div>
           ) : (
             users.map((user) => (
@@ -180,7 +180,7 @@ export default function UsersPage() {
 
       <ConfirmModal
         open={!!deleteTarget}
-        title="Eliminar usuaria"
+        title="Eliminar usuario"
         message={`¿Eliminar a ${deleteTarget?.name}? También se borrarán todos sus clientes y notas.`}
         confirmLabel="Eliminar"
         danger
@@ -328,7 +328,7 @@ function UserForm({ editUser, onDone }: { editUser: User | null; onDone: () => v
   return (
     <form onSubmit={handleSubmit} className="animate-slide-up rounded-2xl border border-border bg-white p-6 shadow-sm">
       <h2 className="text-base font-semibold text-text">
-        {editUser ? `Editar: ${editUser.name}` : "Crear usuaria manualmente"}
+        {editUser ? `Editar: ${editUser.name}` : "Crear usuario manualmente"}
       </h2>
       <p className="mb-4 text-sm text-text-secondary">
         {editUser ? "Actualizá los datos. Dejá la contraseña vacía si no querés cambiarla." : "Creás la cuenta directamente, sin invitación."}
@@ -383,7 +383,7 @@ function UserForm({ editUser, onDone }: { editUser: User | null; onDone: () => v
           {loading && (
             <span className="h-4 w-4 animate-spin rounded-full border-2 border-white/30 border-t-white" />
           )}
-          {loading ? "Guardando..." : editUser ? "Guardar cambios" : "Crear usuaria"}
+          {loading ? "Guardando..." : editUser ? "Guardar cambios" : "Crear usuario"}
         </button>
         <button
           type="button"

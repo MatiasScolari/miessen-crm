@@ -20,7 +20,7 @@ export default function Sidebar({
   const pathname = usePathname();
 
   const navLinks = role === "admin"
-    ? [...links, { href: "/dashboard/invite", label: "Usuarias", icon: "👤" }]
+    ? [...links, { href: "/dashboard/invite", label: "Usuarios", icon: "👥" }]
     : links;
 
   return (
